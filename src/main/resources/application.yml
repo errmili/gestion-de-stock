@@ -17,3 +17,9 @@ spring:
   cloud:
     compatibility-verifier:
       enabled: false
+
+
+#sonareQube : user : admin/Jaouad12345*
+
+#mvn clean verify sonar:sonar : pour lancer
+

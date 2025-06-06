@@ -28,7 +28,23 @@ public class ClientServiceImpl implements ClientService {
   public ClientServiceImpl(ClientRepository clientRepository, CommandeClientRepository commandeClientRepository) {
     this.clientRepository = clientRepository;
     this.commandeClientRepository = commandeClientRepository;
+
   }
+
+//  @Override
+//  public ClientDto save(ClientDto dto) {
+//    List<String> errors = ClientValidator.validate(dto);
+//    if (!errors.isEmpty()) {
+//      log.error("Client is not valid {}", dto);
+//      throw new InvalidEntityException("Le client n'est pas valide", ErrorCodes.CLIENT_NOT_VALID, errors);
+//    }
+//
+//    return ClientDto.fromEntity(
+//            clientRepository.save(
+//                    ClientDto.toEntity(dto)
+//            )
+//    );
+//  }
 
   @Override
   public ClientDto save(ClientDto dto) {

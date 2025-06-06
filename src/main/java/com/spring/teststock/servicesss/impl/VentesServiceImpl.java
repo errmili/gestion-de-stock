@@ -11,6 +11,7 @@ import com.spring.teststock.exception.InvalidEntityException;
 import com.spring.teststock.exception.InvalidOperationException;
 import com.spring.teststock.model.*;
 import com.spring.teststock.repository.ArticleRepository;
+import com.spring.teststock.repository.EntrepriseRepository;
 import com.spring.teststock.repository.LigneVenteRepository;
 import com.spring.teststock.repository.VentesRepository;
 import com.spring.teststock.servicesss.MvtStkService;
@@ -23,6 +24,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,21 +38,38 @@ public class VentesServiceImpl implements VentesService {
   private LigneVenteRepository ligneVenteRepository;
   private MvtStkService mvtStkService;
 
+  private EntrepriseRepository entrepriseRepository;
+
   @Autowired
   public VentesServiceImpl(ArticleRepository articleRepository, VentesRepository ventesRepository,
-                           LigneVenteRepository ligneVenteRepository, MvtStkService mvtStkService) {
+                           LigneVenteRepository ligneVenteRepository, MvtStkService mvtStkService,
+                           EntrepriseRepository entrepriseRepository) {
     this.articleRepository = articleRepository;
     this.ventesRepository = ventesRepository;
     this.ligneVenteRepository = ligneVenteRepository;
     this.mvtStkService = mvtStkService;
+    this.entrepriseRepository = entrepriseRepository;
   }
 
   @Override
   public VentesDto save(VentesDto dto) {
+
     List<String> errors = VentesValidator.validate(dto);
     if (!errors.isEmpty()) {
       log.error("Ventes n'est pas valide");
       throw new InvalidEntityException("L'objet vente n'est pas valide", ErrorCodes.VENTE_NOT_VALID, errors);
+    }
+
+    // Vérification de l'entreprise référencée
+    if (dto.getIdEntreprise() != null) {
+      Optional<Entreprise> entrepriseOpt = entrepriseRepository.findById(dto.getIdEntreprise());
+      if (!entrepriseOpt.isPresent()) {
+        throw new InvalidEntityException("L'entreprise référencée n'existe pas.", ErrorCodes.ENTREPRISE_NOT_FOUND,
+                Collections.singletonList("L'entreprise référencée dans la vente n'existe pas."));
+      }
+    } else {
+      throw new InvalidEntityException("L'ID de l'entreprise est requis pour la vente", ErrorCodes.ENTREPRISE_NOT_FOUND,
+              Collections.singletonList("L'ID de l'entreprise ne peut pas être nul pour la vente."));
     }
 
     List<String> articleErrors = new ArrayList<>();

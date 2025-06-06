@@ -8,6 +8,7 @@ import com.spring.teststock.exception.InvalidOperationException;
 import com.spring.teststock.model.*;
 import com.spring.teststock.repository.ArticleRepository;
 import com.spring.teststock.repository.CommandeFournisseurRepository;
+import com.spring.teststock.repository.EntrepriseRepository;
 import com.spring.teststock.repository.FournisseurRepository;
 import com.spring.teststock.repository.LigneCommandeFournisseurRepository;
 import com.spring.teststock.servicesss.CommandeFournisseurService;
@@ -22,6 +23,7 @@ import org.springframework.util.StringUtils;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,15 +38,19 @@ public class CommandeFournisseurServiceImpl implements CommandeFournisseurServic
   private ArticleRepository articleRepository;
   private MvtStkService mvtStkService;
 
+  private EntrepriseRepository entrepriseRepository;
+
   @Autowired
   public CommandeFournisseurServiceImpl(CommandeFournisseurRepository commandeFournisseurRepository,
                                         FournisseurRepository fournisseurRepository, ArticleRepository articleRepository,
-                                        LigneCommandeFournisseurRepository ligneCommandeFournisseurRepository, MvtStkService mvtStkService) {
+                                        LigneCommandeFournisseurRepository ligneCommandeFournisseurRepository, MvtStkService mvtStkService,
+                                        EntrepriseRepository entrepriseRepository) {
     this.commandeFournisseurRepository = commandeFournisseurRepository;
     this.ligneCommandeFournisseurRepository = ligneCommandeFournisseurRepository;
     this.fournisseurRepository = fournisseurRepository;
     this.articleRepository = articleRepository;
     this.mvtStkService = mvtStkService;
+    this.entrepriseRepository = entrepriseRepository;
   }
 
   @Override
@@ -57,10 +63,22 @@ public class CommandeFournisseurServiceImpl implements CommandeFournisseurServic
       throw new InvalidEntityException("La commande fournisseur n'est pas valide", ErrorCodes.COMMANDE_FOURNISSEUR_NOT_VALID, errors);
     }
 
+    // Vérification de l'entreprise référencée
+    if (dto.getIdEntreprise() != null) {
+      Optional<Entreprise> entrepriseOpt = entrepriseRepository.findById(dto.getIdEntreprise());
+      if (!entrepriseOpt.isPresent()) {
+        throw new InvalidEntityException("L'entreprise référencée n'existe pas.", ErrorCodes.ENTREPRISE_NOT_FOUND,
+                Collections.singletonList("L'entreprise référencée dans la commande fournisseur n'existe pas."));
+      }
+    } else {
+      throw new InvalidEntityException("L'ID de l'entreprise est requis pour la commande fournisseur", ErrorCodes.ENTREPRISE_NOT_FOUND,
+              Collections.singletonList("L'ID de l'entreprise ne peut pas être nul pour la commande fournisseur."));
+    }
+
+
     if (dto.getId() != null && dto.isCommandeLivree()) {
       throw new InvalidOperationException("Impossible de modifier la commande lorsqu'elle est livree", ErrorCodes.COMMANDE_FOURNISSEUR_NON_MODIFIABLE);
     }
-
     Optional<Fournisseur> fournisseur = fournisseurRepository.findById(dto.getFournisseur().getId());
     if (fournisseur.isEmpty()) {
       log.warn("Fournisseur with ID {} was not found in the DB", dto.getFournisseur().getId());

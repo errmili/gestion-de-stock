@@ -37,7 +37,7 @@ public interface CommandeClientApi {
   ResponseEntity<CommandeClientDto> deleteArticle(@PathVariable("idCommande") Integer idCommande, @PathVariable("idLigneCommande") Integer idLigneCommande);
 
   @GetMapping(APP_ROOT + "/commandesclients/{idCommandeClient}")
-  ResponseEntity<CommandeClientDto> findById(@PathVariable Integer idCommandeClient);
+  ResponseEntity<CommandeClientDto> findById(@PathVariable("idCommandeClient") Integer idCommandeClient);
 
   @GetMapping(APP_ROOT + "/commandesclients/filter/{codeCommandeClient}")
   ResponseEntity<CommandeClientDto> findByCode(@PathVariable("codeCommandeClient") String code);

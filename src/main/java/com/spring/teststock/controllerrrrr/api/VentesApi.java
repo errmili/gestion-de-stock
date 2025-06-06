@@ -14,10 +14,10 @@ public interface VentesApi {
   @PostMapping(VENTES_ENDPOINT + "/create")
   VentesDto save(@RequestBody VentesDto dto);
 
-  @GetMapping(VENTES_ENDPOINT + "/{idVente}")
+  @GetMapping(VENTES_ENDPOINT + "/id/{idVente}")
   VentesDto findById(@PathVariable("idVente") Integer id);
 
-  @GetMapping(VENTES_ENDPOINT + "/{codeVente}")
+  @GetMapping(VENTES_ENDPOINT + "/code/{codeVente}")
   VentesDto findByCode(@PathVariable("codeVente") String code);
 
   @GetMapping(VENTES_ENDPOINT + "/all")

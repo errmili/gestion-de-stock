@@ -2,6 +2,8 @@ package com.spring.teststock.validator;
 
 
 import com.spring.teststock.dto.ClientDto;
+
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;

@@ -50,23 +50,23 @@ public class SwaggerConfiguration {
 //        .build();
 //  }
 //
-//  private ApiKey apiKey() {
-//    return new ApiKey("JWT", AUTHORIZATION_HEADER, "header");
-//  }
-//
-//  private SecurityContext securityContext() {
-//    return SecurityContext.builder()
-//        .securityReferences(defaultAuth())
-//        .build();
-//  }
-//
-//  List<SecurityReference> defaultAuth() {
-//    AuthorizationScope authorizationScope
-//        = new AuthorizationScope("global", "accessEverything");
-//    AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
-//    authorizationScopes[0] = authorizationScope;
-//    return Collections.singletonList(
-//        new SecurityReference("JWT", authorizationScopes));
-//  }
+  private ApiKey apiKey() {
+    return new ApiKey("JWT", AUTHORIZATION_HEADER, "header");
+  }
+
+  private SecurityContext securityContext() {
+    return SecurityContext.builder()
+        .securityReferences(defaultAuth())
+        .build();
+  }
+
+  List<SecurityReference> defaultAuth() {
+    AuthorizationScope authorizationScope
+        = new AuthorizationScope("global", "accessEverything");
+    AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+    authorizationScopes[0] = authorizationScope;
+    return Collections.singletonList(
+        new SecurityReference("JWT", authorizationScopes));
+  }
 
 }

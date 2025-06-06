@@ -61,5 +61,4 @@ public class ArticleDto {
     article.setCategory(CategoryDto.toEntity(articleDto.getCategory()));
     return article;
   }
-
 }

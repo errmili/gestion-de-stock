@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @Builder
-  public class VentesDto {
+public class VentesDto {
 
     private Integer id;
 

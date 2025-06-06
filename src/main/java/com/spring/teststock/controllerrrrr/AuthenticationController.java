@@ -1,18 +1,19 @@
-package com.spring.teststock.controller;
+package com.spring.teststock.controllerrrrr;
 
 
-import com.bouali.gestiondestock.controller.api.AuthenticationApi;
-import com.bouali.gestiondestock.dto.auth.AuthenticationRequest;
-import com.bouali.gestiondestock.dto.auth.AuthenticationResponse;
-import com.bouali.gestiondestock.model.auth.ExtendedUser;
-import com.bouali.gestiondestock.services.auth.ApplicationUserDetailsService;
-import com.bouali.gestiondestock.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.spring.teststock.controllerrrrr.api.AuthenticationApi;
+import com.spring.teststock.dto.auth.AuthenticationRequest;
+import com.spring.teststock.dto.auth.AuthenticationResponse;
+import com.spring.teststock.model.auth.ExtendedUser;
+import com.spring.teststock.servicesss.auth.ApplicationUserDetailsService;
+import com.spring.teststock.utils.JwtUtil;
 
 @RestController
 public class AuthenticationController implements AuthenticationApi {
@@ -28,8 +29,9 @@ public class AuthenticationController implements AuthenticationApi {
 
   @Override
   public ResponseEntity<AuthenticationResponse> authenticate(AuthenticationRequest request) {
+
     authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(
+          new UsernamePasswordAuthenticationToken(
             request.getLogin(),
             request.getPassword()
         )

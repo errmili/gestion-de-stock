@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface ClientService {
 
+  // for test
   ClientDto save(ClientDto dto);
 
   ClientDto findById(Integer id);

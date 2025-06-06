@@ -4,6 +4,9 @@ package com.spring.teststock.controllerrrrr.api;
 import com.spring.teststock.dto.ChangerMotDePasseUtilisateurDto;
 import com.spring.teststock.dto.UtilisateurDto;
 import io.swagger.annotations.Api;
+
+import javax.transaction.Transactional;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +32,7 @@ public interface UtilisateurApi {
   List<UtilisateurDto> findAll();
 
   @DeleteMapping(UTILISATEUR_ENDPOINT + "/delete/{idUtilisateur}")
+  @Transactional
   void delete(@PathVariable("idUtilisateur") Integer id);
 
 }

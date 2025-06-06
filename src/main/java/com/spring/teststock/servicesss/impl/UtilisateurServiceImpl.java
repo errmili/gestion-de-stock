@@ -1,21 +1,30 @@
 package com.spring.teststock.servicesss.impl;
 
 import com.spring.teststock.dto.ChangerMotDePasseUtilisateurDto;
+import com.spring.teststock.dto.EntrepriseDto;
 import com.spring.teststock.dto.UtilisateurDto;
 import com.spring.teststock.exception.EntityNotFoundException;
 import com.spring.teststock.exception.ErrorCodes;
 import com.spring.teststock.exception.InvalidEntityException;
 import com.spring.teststock.exception.InvalidOperationException;
+import com.spring.teststock.model.Entreprise;
+import com.spring.teststock.model.Roles;
 import com.spring.teststock.model.Utilisateur;
+import com.spring.teststock.repository.EntrepriseRepository;
+import com.spring.teststock.repository.RolesRepository;
 import com.spring.teststock.repository.UtilisateurRepository;
 import com.spring.teststock.servicesss.UtilisateurService;
 import com.spring.teststock.validator.UtilisateurValidator;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -24,16 +33,23 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+//@Transactional
 public class  UtilisateurServiceImpl implements UtilisateurService {
 
   private UtilisateurRepository utilisateurRepository;
   private PasswordEncoder passwordEncoder;
 
+  private RolesRepository rolesRepository;
+
+  private EntrepriseRepository entrepriseRepository;
+
   @Autowired
-  public UtilisateurServiceImpl(UtilisateurRepository utilisateurRepository,
-      PasswordEncoder passwordEncoder) {
+  public UtilisateurServiceImpl(RolesRepository rolesRepository, UtilisateurRepository utilisateurRepository,
+      PasswordEncoder passwordEncoder, EntrepriseRepository entrepriseRepository) {
     this.utilisateurRepository = utilisateurRepository;
     this.passwordEncoder = passwordEncoder;
+    this.rolesRepository = rolesRepository;
+    this.entrepriseRepository = entrepriseRepository;
   }
 
   @Override
@@ -49,13 +65,39 @@ public class  UtilisateurServiceImpl implements UtilisateurService {
           Collections.singletonList("Un autre utilisateur avec le meme email existe deja dans la BDD"));
     }
 
+    // Vérification et gestion de l'entreprise
+    if (dto.getEntreprise() != null) {
+      // Si l'entreprise existe déjà (a un ID), on la récupère
+      if (dto.getEntreprise().getId() != null) {
+        Optional<Entreprise> entrepriseOpt = entrepriseRepository.findById(dto.getEntreprise().getId());
+        if (!entrepriseOpt.isPresent()) {
+          throw new InvalidEntityException("L'entreprise référencée n'existe pas.", ErrorCodes.ENTREPRISE_NOT_FOUND,
+                  Collections.singletonList("L'entreprise référencée dans l'utilisateur n'existe pas."));
+        }
+        // Si l'entreprise existe déjà, on l'affecte à l'utilisateur
+        dto.setEntreprise(EntrepriseDto.fromEntity(entrepriseOpt.get()));
+      } else {
+        // Si l'entreprise n'a pas d'ID, cela signifie qu'elle est nouvelle
+        Entreprise entreprise = EntrepriseDto.toEntity(dto.getEntreprise());
+        // Sauvegarder l'entreprise avant d'affecter à l'utilisateur
+        entreprise = entrepriseRepository.save(entreprise);
+        // Mettre à jour l'utilisateur avec la nouvelle entreprise
+        dto.setEntreprise(EntrepriseDto.fromEntity(entreprise));
+      }
+    }
 
-    dto.setMoteDePasse(passwordEncoder.encode(dto.getMoteDePasse()));
+    // Convertir le DTO en entité Utilisateur
+    Utilisateur utilisateur = UtilisateurDto.toEntity(dto);
 
+    // Ajouter la date de création uniquement dans l'entité Utilisateur
+  //  utilisateur.setCreationDate(Instant.now());
+
+    // Encoder le mot de passe
+    utilisateur.setMoteDePasse(passwordEncoder.encode(utilisateur.getMoteDePasse()));
+
+    // Sauvegarder l'utilisateur dans la base de données
     return UtilisateurDto.fromEntity(
-        utilisateurRepository.save(
-            UtilisateurDto.toEntity(dto)
-        )
+            utilisateurRepository.save(utilisateur)
     );
   }
 
@@ -91,6 +133,13 @@ public class  UtilisateurServiceImpl implements UtilisateurService {
       log.error("Utilisateur ID is null");
       return;
     }
+
+//    // Supprimer les rôles associés à l'utilisateur
+//    List<Roles> roles = rolesRepository.findByUtilisateurId(id);
+//    if (roles != null && !roles.isEmpty()) {
+//      rolesRepository.deleteAll(roles);
+//    }
+
     utilisateurRepository.deleteById(id);
   }
 

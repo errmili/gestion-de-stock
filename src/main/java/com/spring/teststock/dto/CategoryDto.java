@@ -24,8 +24,7 @@ public class CategoryDto {
 
   public static CategoryDto fromEntity(Category category) {
     if (category == null) {
-      return null;
-      // TODO throw an exception
+      throw new IllegalArgumentException("Category cannot be null");
     }
 
     return CategoryDto.builder()
@@ -38,8 +37,7 @@ public class CategoryDto {
 
   public static Category toEntity(CategoryDto categoryDto) {
     if (categoryDto == null) {
-      return null;
-      // TODO throw an exception
+      throw new IllegalArgumentException("CategoryDto cannot be null");
     }
 
     Category category = new Category();
